@@ -1,0 +1,148 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartAI</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #101426;
+  color: white;
+}
+header {
+  padding: 22px;
+  text-align: center;
+  background: #202947;
+}
+header h1 {
+  color: #8b9cff;
+}
+nav {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 15px;
+  flex-wrap: wrap;
+}
+nav button, .send {
+  border: 0;
+  padding: 12px 18px;
+  border-radius: 10px;
+  background: #6878ed;
+  color: white;
+  cursor: pointer;
+}
+main {
+  max-width: 600px;
+  margin: auto;
+  padding: 15px;
+}
+.panel {
+  background: #202947;
+  padding: 20px;
+  border-radius: 15px;
+}
+textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 14px;
+  border-radius: 10px;
+  border: 0;
+  margin: 12px 0;
+  font-size: 16px;
+}
+#result {
+  white-space: pre-wrap;
+  line-height: 1.6;
+  margin-top: 20px;
+}
+footer {
+  text-align: center;
+  padding: 25px;
+  color: #aab1c8;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>✨ SmartAI</h1>
+  <p>Your AI Assistant</p>
+</header>
+
+<nav>
+  <button onclick="setMode('chat')">AI Chat</button>
+  <button onclick="setMode('writer')">AI Writer</button>
+  <button onclick="setMode('translate')">Translator</button>
+</nav>
+
+<main>
+  <section class="panel">
+    <h2 id="heading">AI Chat</h2>
+
+    <textarea id="prompt"
+      placeholder="Write your message here..."></textarea>
+
+    <button class="send" onclick="runAI()">
+      Generate
+    </button>
+
+    <div id="result">
+      Your AI response will appear here.
+    </div>
+  </section>
+</main>
+
+<footer>
+  SmartAI © 2026
+</footer>
+
+<script>
+let mode = "chat";
+
+function setMode(value) {
+  mode = value;
+
+  const names = {
+    chat: "AI Chat",
+    writer: "AI Writer",
+    translate: "AI Translator"
+  };
+
+  document.getElementById("heading").textContent =
+    names[value];
+
+  document.getElementById("result").textContent =
+    "Write something to get started.";
+}
+
+function runAI() {
+  const input =
+    document.getElementById("prompt").value.trim();
+
+  if (!input) {
+    alert("Please enter some text.");
+    return;
+  }
+
+  const messages = {
+    chat: "AI Chat selected. Connect an AI API to get a real answer.",
+    writer: "AI Writer selected. Connect an AI API to generate writing.",
+    translate: "Translator selected. Connect an AI API to translate text."
+  };
+
+  document.getElementById("result").textContent =
+    messages[mode] + "\n\nYour input: " + input;
+}
+</script>
+
+</body>
+</html>
