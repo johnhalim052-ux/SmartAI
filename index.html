@@ -1,148 +1,237 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SmartAI</title>
-
 <style>
-* {
-  box-sizing: border-box;
-}
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #101426;
-  color: white;
-}
-header {
-  padding: 22px;
-  text-align: center;
-  background: #202947;
-}
-header h1 {
-  color: #8b9cff;
-}
-nav {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  padding: 15px;
-  flex-wrap: wrap;
-}
-nav button, .send {
-  border: 0;
-  padding: 12px 18px;
-  border-radius: 10px;
-  background: #6878ed;
-  color: white;
-  cursor: pointer;
-}
-main {
-  max-width: 600px;
-  margin: auto;
-  padding: 15px;
-}
-.panel {
-  background: #202947;
-  padding: 20px;
-  border-radius: 15px;
-}
-textarea {
-  width: 100%;
-  min-height: 120px;
-  padding: 14px;
-  border-radius: 10px;
-  border: 0;
-  margin: 12px 0;
-  font-size: 16px;
-}
-#result {
-  white-space: pre-wrap;
-  line-height: 1.6;
-  margin-top: 20px;
-}
-footer {
-  text-align: center;
-  padding: 25px;
-  color: #aab1c8;
-}
+:root{--bg:#fff;--bg2:#f4f4f6;--tx:#1a1a1f;--mu:#6b6b76;--ac:#10a37f;--bd:#e3e3e8}
+[data-theme=dark]{--bg:#212125;--bg2:#2b2b31;--tx:#ececf1;--mu:#9a9aa6;--bd:#3c3c44}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{font-family:system-ui,"Segoe UI",Tahoma,sans-serif;background:var(--bg);color:var(--tx);display:flex;flex-direction:column;height:100dvh}
+button,select,textarea{font:inherit;color:inherit}
+header{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--bd)}
+header h1{flex:1;font-size:18px}
+.ib{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;min-width:40px;height:40px;cursor:pointer;font-size:18px}
+.ib.on{background:#d33;color:#fff}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:10px;padding:11px 14px;cursor:pointer;font-weight:600}
+.btn:disabled{opacity:.5}
+#side{position:fixed;top:0;bottom:0;inset-inline-start:0;width:280px;max-width:85%;background:var(--bg2);border-inline-end:1px solid var(--bd);transform:translateX(-100%);transition:.25s;z-index:20;padding:12px;display:flex;flex-direction:column;gap:8px}
+[dir=rtl] #side{transform:translateX(100%)}
+#side.open{transform:none}
+#shade{display:none;position:fixed;inset:0;background:#0006;z-index:10}
+#shade.show{display:block}
+#list{flex:1;overflow:auto;display:flex;flex-direction:column;gap:4px}
+.ci{display:flex;align-items:center;border-radius:8px;padding:2px 8px;cursor:pointer}
+.ci.a,.ci:hover{background:var(--bd)}
+.ci span{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding:8px 0}
+.ci b{color:var(--mu);padding:6px 8px}
+.view{display:none;flex:1;min-height:0;flex-direction:column}
+.view.on{display:flex}
+#msgs{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.m{max-width:85%;padding:10px 14px;border-radius:16px;white-space:pre-wrap;line-height:1.55;word-break:break-word}
+.m.user{align-self:flex-end;background:var(--ac);color:#fff}
+.m.assistant{align-self:flex-start;background:var(--bg2);border:1px solid var(--bd)}
+.m.err{align-self:center;color:#d33}
+.dots span{display:inline-block;width:7px;height:7px;margin:0 2px;border-radius:50%;background:var(--mu);animation:b 1s infinite}
+.dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+@keyframes b{50%{opacity:.2}}
+#bar{display:flex;gap:6px;padding:10px;border-top:1px solid var(--bd);align-items:flex-end}
+#inp{flex:1;resize:none;max-height:120px;background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:10px}
+#vbar{display:none;padding:8px;text-align:center;background:var(--ac);color:#fff}
+#vbar.show{display:block}
+#vbar button{margin:0 8px;border:0;border-radius:8px;padding:6px 14px;background:#fff;color:#000;cursor:pointer}
+.pane{padding:14px;overflow:auto;gap:10px}
+.pane select,.pane textarea{width:100%;background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:10px}
+.row{display:flex;gap:8px}
+.out{white-space:pre-wrap;background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:12px;min-height:70px;line-height:1.55}
+nav{display:flex;border-top:1px solid var(--bd)}
+nav button{flex:1;padding:12px 4px;background:none;border:0;color:var(--mu);cursor:pointer;font-size:14px}
+nav button.on{color:var(--ac);font-weight:700}
 </style>
 </head>
-
 <body>
-
 <header>
-  <h1>✨ SmartAI</h1>
-  <p>Your AI Assistant</p>
+  <button class="ib" id="menu">☰</button><h1>SmartAI</h1>
+  <button class="ib" id="theme">🌓</button><button class="ib" id="lang">ع</button>
 </header>
+<div id="shade"></div>
+<aside id="side"><button class="btn" id="new" data-t="new"></button><div id="list"></div></aside>
+
+<div id="v-chat" class="view on">
+  <div id="vbar"><span data-t="vmode"></span><button id="vstop" data-t="stop"></button></div>
+  <div id="msgs"></div>
+  <div id="bar">
+    <button class="ib" id="mic">🎤</button><button class="ib" id="vm">🎧</button>
+    <textarea id="inp" rows="1"></textarea><button class="btn" id="go" data-t="send"></button>
+  </div>
+</div>
+
+<div id="v-writer" class="view pane">
+  <div class="row"><select id="wt"></select><select id="ws"></select></div>
+  <select id="wl"></select>
+  <textarea id="wi" rows="4"></textarea>
+  <button class="btn" id="wg" data-t="write"></button>
+  <div class="out" id="wo"></div>
+  <button class="btn" id="wc" data-t="copy"></button>
+</div>
+
+<div id="v-trans" class="view pane">
+  <div class="row"><select id="tf"></select><button class="ib" id="sw">⇄</button><select id="tt"></select></div>
+  <textarea id="ti" rows="5"></textarea>
+  <button class="btn" id="tg" data-t="trans"></button>
+  <div class="out" id="to"></div>
+  <div class="row"><button class="btn" id="tc" data-t="copy"></button><button class="btn" id="ts" data-t="speak"></button></div>
+</div>
 
 <nav>
-  <button onclick="setMode('chat')">AI Chat</button>
-  <button onclick="setMode('writer')">AI Writer</button>
-  <button onclick="setMode('translate')">Translator</button>
+  <button class="on" data-v="chat" data-t="chat"></button>
+  <button data-v="writer" data-t="writer"></button>
+  <button data-v="trans" data-t="translator"></button>
 </nav>
 
-<main>
-  <section class="panel">
-    <h2 id="heading">AI Chat</h2>
-
-    <textarea id="prompt"
-      placeholder="Write your message here..."></textarea>
-
-    <button class="send" onclick="runAI()">
-      Generate
-    </button>
-
-    <div id="result">
-      Your AI response will appear here.
-    </div>
-  </section>
-</main>
-
-<footer>
-  SmartAI © 2026
-</footer>
-
 <script>
-let mode = "chat";
+// >>> Replace this with YOUR Cloudflare Worker URL <<<
+const API="https://YOUR-WORKER-NAME.YOUR-SUBDOMAIN.workers.dev";
 
-function setMode(value) {
-  mode = value;
+const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
+const LG={ar:'العربية',en:'English',fr:'Français',es:'Español',de:'Deutsch',tr:'Türkçe',it:'Italiano',ru:'Русский',zh:'中文'};
+const VL={ar:'ar-SA',en:'en-US',fr:'fr-FR',es:'es-ES',de:'de-DE',tr:'tr-TR',it:'it-IT',ru:'ru-RU',zh:'zh-CN'};
+const T={
+en:{new:'+ New chat',send:'Send',ph:'Ask me anything…',vmode:'🎧 Voice mode is on',stop:'Stop',write:'Write',copy:'Copy',trans:'Translate',speak:'🔊 Listen',chat:'💬 Chat',writer:'✍️ Writer',translator:'🌐 Translator',topic:'What should I write about?',txt:'Text to translate…',auto:'Auto-detect',article:'Article',email:'Email',social:'Social media post',description:'Description',professional:'Professional',casual:'Casual',persuasive:'Persuasive',creative:'Creative',formal:'Formal',nosr:'Voice input is not supported in this browser. Please use Chrome.',wait:'Please wait…',nochat:'New chat',empty:'Hello! How can I help you today?',noconn:'Cannot reach the server',nomic:'Microphone permission was denied.'},
+ar:{new:'+ محادثة جديدة',send:'إرسال',ph:'اسألني أي شيء…',vmode:'🎧 الوضع الصوتي يعمل',stop:'إيقاف',write:'اكتب',copy:'نسخ',trans:'ترجم',speak:'🔊 استمع',chat:'💬 دردشة',writer:'✍️ الكاتب',translator:'🌐 المترجم',topic:'عن ماذا تريد أن أكتب؟',txt:'اكتب النص للترجمة…',auto:'اكتشاف تلقائي',article:'مقال',email:'بريد إلكتروني',social:'منشور سوشيال ميديا',description:'وصف',professional:'احترافي',casual:'بسيط',persuasive:'إقناعي',creative:'إبداعي',formal:'رسمي',nosr:'الإدخال الصوتي غير مدعوم في هذا المتصفح. استخدم Chrome.',wait:'انتظر قليلاً…',nochat:'محادثة جديدة',empty:'مرحباً! كيف يمكنني مساعدتك اليوم؟',noconn:'تعذر الاتصال بالخادم',nomic:'تم رفض إذن الميكروفون.'}
+};
+let S={chats:[],cur:null,theme:'light',lang:(navigator.language||'').startsWith('ar')?'ar':'en'};
+try{Object.assign(S,JSON.parse(localStorage.getItem('sai')||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem('sai',JSON.stringify(S))}catch(e){}};
+const t=k=>T[S.lang][k]||k;
+const chat=()=>S.chats.find(c=>c.id===S.cur);
+let busy=false,voiceOn=false,rec=null;
 
-  const names = {
-    chat: "AI Chat",
-    writer: "AI Writer",
-    translate: "AI Translator"
-  };
-
-  document.getElementById("heading").textContent =
-    names[value];
-
-  document.getElementById("result").textContent =
-    "Write something to get started.";
+/* ---------- API ---------- */
+async function ask(mode,messages,extra={}){
+  let r;
+  try{r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode,messages,...extra})})}
+  catch(e){throw new Error(t('noconn'))}
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(d.error||('Error '+r.status));
+  return d.text;
 }
 
-function runAI() {
-  const input =
-    document.getElementById("prompt").value.trim();
-
-  if (!input) {
-    alert("Please enter some text.");
-    return;
-  }
-
-  const messages = {
-    chat: "AI Chat selected. Connect an AI API to get a real answer.",
-    writer: "AI Writer selected. Connect an AI API to generate writing.",
-    translate: "Translator selected. Connect an AI API to translate text."
-  };
-
-  document.getElementById("result").textContent =
-    messages[mode] + "\n\nYour input: " + input;
+/* ---------- Chat ---------- */
+function newChat(){const c={id:Date.now(),title:'',msgs:[]};S.chats.unshift(c);S.cur=c.id;save();render()}
+function add(role,text){const d=document.createElement('div');d.className='m '+role;d.textContent=text;$('#msgs').append(d);$('#msgs').scrollTop=1e9;return d}
+function render(){
+  const c=chat();$('#msgs').innerHTML='';
+  if(!c||!c.msgs.length)add('assistant',t('empty'));else c.msgs.forEach(m=>add(m.role,m.content));
+  $('#list').innerHTML='';
+  S.chats.forEach(x=>{
+    const d=document.createElement('div');d.className='ci'+(x.id===S.cur?' a':'');
+    const s=document.createElement('span');s.textContent=x.title||t('nochat');
+    const b=document.createElement('b');b.textContent='✕';
+    d.onclick=()=>{S.cur=x.id;save();render();side(false)};
+    b.onclick=e=>{e.stopPropagation();S.chats=S.chats.filter(y=>y!==x);
+      if(S.cur===x.id)S.cur=S.chats[0]?S.chats[0].id:null;
+      save();if(!S.cur)newChat();else render()};
+    d.append(s,b);$('#list').append(d);
+  });
 }
+async function send(text){
+  text=(text||'').trim();if(!text||busy)return;
+  const c=chat();busy=true;$('#inp').value='';$('#inp').style.height='auto';
+  c.msgs.push({role:'user',content:text});if(!c.title)c.title=text.slice(0,40);save();render();
+  const ty=add('assistant','');ty.innerHTML='<span class="dots"><span></span><span></span><span></span></span>';
+  try{
+    const a=await ask('chat',c.msgs.slice(-20));
+    c.msgs.push({role:'assistant',content:a});save();render();
+    if(voiceOn)speak(a,()=>{if(voiceOn)listen()});
+  }catch(e){ty.remove();add('err','⚠️ '+e.message);stopVoice()}
+  busy=false;
+}
+
+/* ---------- Voice ---------- */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+function killRec(){if(rec){rec.onend=rec.onerror=rec.onresult=null;try{rec.abort()}catch(e){}rec=null}$('#mic').classList.remove('on')}
+function listen(){
+  if(!SR){alert(t('nosr'));stopVoice();return}
+  killRec();rec=new SR();rec.lang=VL[S.lang]||'en-US';
+  let got=false;
+  rec.onresult=e=>{got=true;const x=e.results[0][0].transcript;voiceOn?send(x):($('#inp').value=x)};
+  rec.onend=()=>{$('#mic').classList.remove('on');
+    if(voiceOn&&!got&&!busy)setTimeout(()=>{if(voiceOn&&!busy)listen()},300)};
+  rec.onerror=e=>{if(e.error==='not-allowed'||e.error==='service-not-allowed'){stopVoice();alert(t('nomic'))}};
+  rec.start();$('#mic').classList.add('on');
+}
+function stopVoice(){voiceOn=false;speechSynthesis.cancel();killRec();$('#vbar').classList.remove('show')}
+function speak(txt,done,lang){
+  speechSynthesis.cancel();
+  const l=lang||(/[\u0600-\u06FF]/.test(txt)?'ar-SA':'en-US');
+  const vs=speechSynthesis.getVoices().filter(v=>v.lang.replace('_','-').startsWith(l.slice(0,2)));
+  const v=vs.find(v=>/natural|google|online/i.test(v.name))||vs[0];
+  const parts=(txt.match(/[^.!?؟\n]+[.!?؟]*/g)||[txt]).map(s=>s.trim()).filter(Boolean);
+  parts.forEach((p,i)=>{
+    const u=new SpeechSynthesisUtterance(p);u.lang=l;if(v)u.voice=v;
+    if(i===parts.length-1)u.onend=()=>{if(done)done()};
+    speechSynthesis.speak(u);
+  });
+}
+
+/* ---------- Writer & Translator ---------- */
+async function run(btn,out,mode,text,extra){
+  if(!text.trim()||btn.disabled)return;
+  btn.disabled=true;out.textContent=t('wait');
+  try{out.textContent=await ask(mode,[{role:'user',content:text}],extra)}
+  catch(e){out.textContent='⚠️ '+e.message}
+  btn.disabled=false;
+}
+const copy=el=>{navigator.clipboard&&navigator.clipboard.writeText(el.textContent)};
+
+/* ---------- UI ---------- */
+function fill(sel,items,lab){const v=sel.value;sel.innerHTML='';items.forEach(i=>sel.add(new Option(lab(i),i)));if(v)sel.value=v}
+function applyLang(){
+  document.documentElement.lang=S.lang;document.documentElement.dir=S.lang==='ar'?'rtl':'ltr';
+  $$('[data-t]').forEach(e=>e.textContent=t(e.dataset.t));
+  $('#inp').placeholder=t('ph');$('#wi').placeholder=t('topic');$('#ti').placeholder=t('txt');
+  const L=Object.keys(LG);
+  fill($('#wt'),['article','email','social','description'],t);
+  fill($('#ws'),['professional','casual','persuasive','creative','formal'],t);
+  fill($('#wl'),L,k=>LG[k]);
+  fill($('#tf'),['auto',...L],k=>k==='auto'?t('auto'):LG[k]);
+  fill($('#tt'),L,k=>LG[k]);
+  $('#lang').textContent=S.lang==='ar'?'EN':'ع';
+  render();
+}
+function side(o){$('#side').classList.toggle('open',o);$('#shade').classList.toggle('show',o)}
+
+$('#menu').onclick=()=>side(true);
+$('#shade').onclick=()=>side(false);
+$('#new').onclick=()=>{newChat();side(false);$('nav button[data-v=chat]').click()};
+$('#theme').onclick=()=>{S.theme=S.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=S.theme;save()};
+$('#lang').onclick=()=>{S.lang=S.lang==='ar'?'en':'ar';save();applyLang()};
+$$('nav button').forEach(b=>b.onclick=()=>{
+  if(b.dataset.v!=='chat')stopVoice();
+  $$('nav button').forEach(x=>x.classList.toggle('on',x===b));
+  $$('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+b.dataset.v));
+});
+$('#go').onclick=()=>send($('#inp').value);
+$('#inp').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!('ontouchstart' in window)){e.preventDefault();send($('#inp').value)}};
+$('#inp').oninput=e=>{e.target.style.height='auto';e.target.style.height=Math.min(e.target.scrollHeight,120)+'px'};
+$('#mic').onclick=()=>{if($('#mic').classList.contains('on'))killRec();else{voiceOn=false;listen()}};
+$('#vm').onclick=()=>{voiceOn=true;$('#vbar').classList.add('show');listen()};
+$('#vstop').onclick=stopVoice;
+$('#wg').onclick=()=>run($('#wg'),$('#wo'),'writer',$('#wi').value,{type:$('#wt').value,style:$('#ws').value,language:$('#wl').value});
+$('#wc').onclick=()=>copy($('#wo'));
+$('#tg').onclick=()=>run($('#tg'),$('#to'),'translate',$('#ti').value,{from:$('#tf').value,to:$('#tt').value});
+$('#tc').onclick=()=>copy($('#to'));
+$('#ts').onclick=()=>{const x=$('#to').textContent;if(x)speak(x,null,VL[$('#tt').value])};
+$('#sw').onclick=()=>{const f=$('#tf').value,o=$('#tt').value;if(f!=='auto'){$('#tf').value=o;$('#tt').value=f}
+  const a=$('#ti').value;$('#ti').value=$('#to').textContent.startsWith('⚠️')?a:$('#to').textContent;$('#to').textContent=''};
+
+document.documentElement.dataset.theme=S.theme;
+if(!chat())newChat();
+applyLang();
+$('#wl').value=S.lang;$('#tt').value=S.lang==='ar'?'en':'ar';
 </script>
-
 </body>
 </html>
